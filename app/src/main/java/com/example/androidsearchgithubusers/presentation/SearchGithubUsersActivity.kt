@@ -169,7 +169,9 @@ class SearchGithubUsersActivity : AppCompatActivity(), SearchGithubUsersView {
             override fun afterTextChanged(s: Editable?) {
                 s?.let {
                     if (it.isBlank()) {
+                        currentPage = FIRST_PAGE
                         listData.clear()
+                        githubUsersAdapter.notifyDataSetChanged()
                         binding.apply {
                             toolbarSearch.btnClear.visibility = View.GONE
                             emptySearchLayout.visibility = View.VISIBLE
