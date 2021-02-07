@@ -19,7 +19,6 @@ class SearchGithubUsersViewModel @ViewModelInject constructor(
 ) : ViewModel() {
 
     companion object {
-        private const val VISIBLE_THRESHOLD = 5
         private const val PER_PAGE = 10
     }
 
@@ -45,8 +44,10 @@ class SearchGithubUsersViewModel @ViewModelInject constructor(
         query: String,
         page: Int
     ) {
-        if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
-            getSearchGithubUsers(query, page)
+        if ((lastVisibleItemPosition + visibleItemCount) >= totalItemCount) {
+            if (page < searchResultData.value?.data?.total_count ?: 0) {
+                getSearchGithubUsers(query, page)
+            }
         }
     }
 

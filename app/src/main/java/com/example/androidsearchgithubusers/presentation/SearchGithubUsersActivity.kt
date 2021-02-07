@@ -26,7 +26,9 @@ class SearchGithubUsersActivity : AppCompatActivity(), SearchGithubUsersView {
 
     lateinit var binding: ActivitySearchGithubUsersBinding
     private val viewModel: SearchGithubUsersViewModel by viewModels()
+    private var listData: ArrayList<Items> = ArrayList()
     private lateinit var githubUsersAdapter: GithubUsersAdapter
+    private var currentPage = 1
 
     companion object {
         private const val DEFAULT_SEARCH_QUERY = "android"
@@ -40,6 +42,7 @@ class SearchGithubUsersActivity : AppCompatActivity(), SearchGithubUsersView {
         setupToolbar()
         setupUI()
         setupObserver()
+        setupScrollListener()
         initData()
     }
 
@@ -49,6 +52,7 @@ class SearchGithubUsersActivity : AppCompatActivity(), SearchGithubUsersView {
                 searchInputQuery.text = null
                 btnClear.visibility = View.GONE
             }
+            searchInputQuery.setText(DEFAULT_SEARCH_QUERY)
             searchInputQuery.setOnEditorActionListener(onEditorActionListener)
             searchInputQuery.addTextChangedListener(textWatcherSearch)
             searchInputQuery.setOnKeyListener(onKeyListener)
@@ -69,14 +73,24 @@ class SearchGithubUsersActivity : AppCompatActivity(), SearchGithubUsersView {
                 Status.SUCCESS -> {
                     binding.progressBar.visibility = View.GONE
                     it.data?.items?.let { items ->
-                        renderList(items)
-                        binding.searchRecycler.visibility = View.VISIBLE
+                        if (it.data.total_count == 0 && currentPage == FIRST_PAGE) {
+                            binding.apply {
+                                emptySearchLayout.visibility = View.VISIBLE
+                                searchRecycler.visibility = View.GONE
+                            }
+                        } else {
+                            listData.addAll(items)
+                            renderList()
+                            binding.apply {
+                                emptySearchLayout.visibility = View.GONE
+                                searchRecycler.visibility = View.VISIBLE
+                            }
+                        }
                     }
                 }
                 Status.LOADING -> {
                     binding.apply {
                         progressBar.visibility = View.VISIBLE
-                        searchRecycler.visibility = View.GONE
                     }
                 }
                 Status.ERROR -> {
@@ -91,31 +105,47 @@ class SearchGithubUsersActivity : AppCompatActivity(), SearchGithubUsersView {
         val layoutManager = binding.searchRecycler.layoutManager as LinearLayoutManager
         binding.searchRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val totalItemCount = layoutManager.itemCount
-                val visibleItemCount = layoutManager.childCount
-                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                if (dy > 0) {
+                    val totalItemCount = layoutManager.itemCount
+                    val visibleItemCount = layoutManager.childCount
+                    val lastVisibleItem = layoutManager.findFirstVisibleItemPosition()
 
-                viewModel.listScrolled(visibleItemCount, lastVisibleItem, totalItemCount, "", 0)
+                    viewModel.listScrolled(
+                        visibleItemCount,
+                        lastVisibleItem,
+                        totalItemCount,
+                        binding.toolbarSearch.searchInputQuery.text.toString(),
+                        currentPage
+                    )
+                }
             }
         })
     }
 
     override fun initData() {
+        listData.clear()
+        currentPage = FIRST_PAGE
         viewModel.getSearchGithubUsers(DEFAULT_SEARCH_QUERY, FIRST_PAGE)
     }
 
     override fun getGithubUsersFromQuery() {
         binding.toolbarSearch.searchInputQuery.text.toString().trim().let {
             if (it.isNotEmpty()) {
+                listData.clear()
+                currentPage = FIRST_PAGE
                 binding.searchRecycler.scrollToPosition(0)
                 viewModel.getSearchGithubUsers(it, FIRST_PAGE)
             }
         }
     }
 
-    override fun renderList(items: List<Items>) {
-        githubUsersAdapter.submitList(items)
+    override fun renderList() {
+        if (currentPage == FIRST_PAGE) {
+            githubUsersAdapter.submitList(listData)
+        } else {
+            githubUsersAdapter.notifyDataSetChanged()
+        }
+        currentPage += 1
     }
 
     override var onEditorActionListener: TextView.OnEditorActionListener
@@ -139,8 +169,12 @@ class SearchGithubUsersActivity : AppCompatActivity(), SearchGithubUsersView {
             override fun afterTextChanged(s: Editable?) {
                 s?.let {
                     if (it.isBlank()) {
-                        binding.toolbarSearch.btnClear.visibility = View.GONE
-                        initData()
+                        listData.clear()
+                        binding.apply {
+                            toolbarSearch.btnClear.visibility = View.GONE
+                            emptySearchLayout.visibility = View.VISIBLE
+                            searchRecycler.visibility = View.GONE
+                        }
                     } else {
                         binding.toolbarSearch.btnClear.visibility = View.VISIBLE
                     }
