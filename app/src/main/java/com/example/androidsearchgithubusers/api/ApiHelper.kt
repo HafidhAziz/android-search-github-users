@@ -13,5 +13,5 @@ interface ApiHelper {
         query: String,
         perPage: Int,
         page: Int
-    ): Response<List<SearchResultsEntity>>
+    ): Response<SearchResultsEntity>
 }

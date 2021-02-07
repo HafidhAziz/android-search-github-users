@@ -8,9 +8,11 @@ import com.squareup.moshi.Json
 
 data class SearchResultsEntity(
     @Json(name = "total_count")
-    val totalCount: Int? = 0,
+    val total_count: Int? = 0,
+    @Json(name = "incomplete_results")
+    val incomplete_results: Boolean? = false,
     @Json(name = "items")
-    val items: Items? = null
+    val items: List<Items>? = null
 )
 
 data class Items(
@@ -19,7 +21,7 @@ data class Items(
     @Json(name = "id")
     val id: Long? = null,
     @Json(name = "avatar_url")
-    val avatarUrl: String? = null,
+    val avatar_url: String? = null,
     @Json(name = "score")
     val score: Float? = null
 )

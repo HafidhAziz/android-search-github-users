@@ -14,5 +14,5 @@ class ApiHelperImpl @Inject constructor(private val apiService: ApiService) : Ap
         query: String,
         perPage: Int,
         page: Int
-    ): Response<List<SearchResultsEntity>> = apiService.getGithubUsers(query, perPage, page)
+    ): Response<SearchResultsEntity> = apiService.getGithubUsers(query, perPage, page)
 }

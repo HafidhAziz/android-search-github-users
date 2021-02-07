@@ -19,18 +19,20 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/search_recycler"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_height="0dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
             android:paddingBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbar_search" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/empty_search_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_search"
             tools:visibility="visible">
 
             <ImageView
@@ -55,6 +57,15 @@
                 app:layout_constraintTop_toBottomOf="@+id/image_empty_search" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

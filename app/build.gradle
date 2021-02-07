@@ -51,6 +51,7 @@ dependencies {
     // androidX
     api "androidx.appcompat:appcompat:$rootProject.androidXVersion"
     api "androidx.core:core-ktx:$rootProject.androidXCoreVersion"
+    api "androidx.activity:activity-ktx:$rootProject.androidXActivityVersion"
 
     // view model
     api "androidx.lifecycle:lifecycle-runtime-ktx:$rootProject.lifecycleVersion"
